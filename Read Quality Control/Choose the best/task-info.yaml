@@ -1,0 +1,102 @@
+type: edu
+files:
+- name: control.py
+  visible: true
+  text: |
+    # write your code here
+  learner_created: false
+- name: tests.py
+  visible: false
+  text: |
+    from hstest import *
+    import re
+
+
+    class BestArchive(StageTest):
+
+        def common_test(self, *files, **point_values):
+            reply = None
+            program = TestedProgram()
+            program.start()
+
+            if not program.is_waiting_input():
+                raise WrongAnswer("You program should input the path to the file")
+
+            for data in files:
+                reply = program.execute(data)
+
+            # if the reply is empty
+            if not reply:
+                raise WrongAnswer("You gave an empty answer")
+            reply_low = reply.replace(" ", "").lower()
+
+            # dict of correct points
+            point2value_correct = {}
+            for param_name, value in point_values.items():
+                point2value_correct[param_name] = value
+
+            # if each point presents only once
+            def check_format(line, substring):
+                substring_low = substring.replace(" ", "").lower()
+                if line.count(substring_low) != 1:
+                    raise WrongAnswer(f"Substring \"{substring}\" should occur once in the output.\n"
+                                      f"Found {line.count(substring_low)} occurrence(s).\n"
+                                      f"Check the output format in the Examples section.\n"
+                                      f"Make sure there is no typos in the output of your program.")
+
+            # check values
+            def check_number(total_reply, substring, correct_number):
+                float_lines = ["gccontentaverage=", "nsperreadsequence="]
+                substring_low = substring.replace(" ", "").lower()
+                pattern = f"{substring_low}([0-9]+)"
+
+                if substring_low in float_lines:
+                    pattern = pattern[:-1] + "\.[0-9]+)"
+                number_search = re.search(pattern=pattern, string=total_reply)
+
+                if number_search is None:
+                    raise WrongAnswer(f"Didn't find numerical answer in the \"{substring}\" line. Please, check if the answer format is correct")
+                number = float(number_search.group(1))
+                if number != correct_number:
+                    raise WrongAnswer(f"The value of \"{substring}\" is incorrect")
+
+            # dict of points for checking + correct values
+            substr2point = {"Reads in the file =": 'AMOUNT',
+                            "Reads sequence average length =": 'AVERAGE',
+                            "Repeats =": 'REPEATS',
+                            "GC content average =": 'GC',
+                            "Reads with Ns =": 'READSN',
+                            "Ns per read sequence =": 'NSPER'}
+
+            # run checking!
+            for substr in substr2point.keys():
+                check_format(reply_low, substr)
+            for substr, point in substr2point.items():
+                check_number(reply_low, substr, point2value_correct[point])
+            return CheckResult.correct()
+
+        @dynamic_test
+        def test1(self):
+            return self.common_test("test/data1.gz", "test/data2.gz", "test/data3.gz",
+                                    AMOUNT=10, AVERAGE=100, REPEATS=0,
+                                    READSN=10, GC=41.4, NSPER=22.0)
+
+
+    if __name__ == '__main__':
+        BestArchive().run_tests()
+  learner_created: false
+- name: test/data1.gz
+  visible: false
+  text: H4sICHA1pmEAA2RhdGExLmZhc3RxAMWVO24DMQxEe10lTez4k1QJwYIdC4f3P0vmjQzkBl7D9u5KWoGPM6R+fh+P0/njcr3dTysyorInskq/7uiqiWYoMitjYnSZ0aoavqMFLNNfVExNtt8ODWg3vaudulPro/TJ9ba+X/BZP/9g5zUKa4QR4IhC8SsoxW2U0o+AFTEJYE0IRKQFjRZlgjPMaw9t1DNaIjglQSNAHgD2IcUUrIRqAzhomCZFSeo9z7URBjl4VMwI0sI2WA1oeiYZWiatmjvwpw8AuyzkgYusy2XPsMk/oZJ8pBCftMFnNptWWL9GH1zZADkFbNS8EGMboP0BYNelKJJAxIQO+AvlcvBdckeBSQnsqUGeUGt/cdwglYTEdUV+2IQRLRhLegDYbcmCNmJx0d/AqJbgDgDqJhqClggqQt0z39jVbi0LTMcJzykhcmLbqnjgCMXuq56JJRQgBAaEmMi9wsRsuWk123atXgKEZmMzCgwnAm9V7Va6yGDrOgDscykmJXxcam6KdPbcJeSTgD5Iu9Mt+qSt6vITlGooy90njUxOAPIe7q2U6QFgX8upL3cGd2c3Orrb1LOKVEK1NfPRVlsx6CxcW0gaDymhXfggcAa2G4+w4ul9cRjTQTi2fBY/e+K4Ptz/yLxlmo0PPGdxcgQMxLXtq9qjphAON7rvcHa/iuwPagAqX3sIAAA=
+  learner_created: false
+- name: test/data3.gz
+  visible: false
+  text: H4sICHA1pmEAA2RhdGEzLmZhc3RxAMWYQZLcOAwE7/zKXtw9Mx77tEbggBsPNv//lkUmemJ/YNoOqyVRChQLKBT068/v34/n2/vH98/HOnWq9q6za1ecfU72vzqRsaNORpxTkdysvlzR6/apHZm7MrnHxbN3rzn9xN79xM5+0Y5e2S/Jvf5Z//6NP+vX/9CeqxpPx99hdFwZfRYFzgOiAuc5sdPTRt5x9lnHzHb0n8YQjbEfztmLvtu70ECz39wvBnndgPa2GkQH1XD4f3NoThpcX+4TqIDRhty/wQaEviWZHX7T3GB6JWzLd/GaBtwP9h1WR9yA9r6C5JGBLbrgJEmmIivNUE77ZxyjbQQED6We5IBO03iTiEfyelcaltl8A9rHSqqkU6kjhYbe9Q4xwTB557GBNT/c26wUyIG97XLwcivJWmuu0dcUXeO8U2vfV9aAoozIsABHAiUnVcMoUZs90ffqIt6YQoRwYPcz1BVqZBEiPOwbSXkD2uc6qFoQVlEyAQIqhbwClAE3iMZCpkW+lKIkjcIcmSw3Q6mhMllK3VKFeaXWfqyDOBIJikDMCECSUOZm40qbQkzdyRD4EXVEMbkD1ezFNi+hMQFMYiqfN6D9XFtGYAZ+EBGrhewLiw+VIe2QTngS9VEyRzxAepTV3o2w/OgX6AjA2Lsb0B7flhJxjNKY4aDsXdQfukmdKYjUWPmz85QaJRl7fan7iqct8kynD97C33NFIh+PRRjETGxaD7aebsYBOczSXAAZ9RStaUrGpcSYqfkqsearibaN8JoDi1ewPbtrB1Fum7Sajd5t2IFKBNK+FxgP8kufRT/b6ukmXX0IhbV4uWaOH0wA+XwF29vK8U4oAEqYhJu2XLKvDxhHslako5gKS2rIXAa+IarM5O0lCK9p8FewvS877WwzuXg0u7biJoHwKEU0QgOCeIYdDc1PWFVvzty3r8FtUInsx7S4K9g+FnttmtVYrrBW6FzIxLgK2hcUyUWof9ovVaj0Zeji0dgc5bXsGdNBLvHWpkQvyRigG5nCOlaTqnGsP8We4nppBvsQM9O8ADH3aLVectQXPNkk9hVsnyunzcYwpxgwD9i2w8mHLkU1pm4yhyUaHB0d91JaMnp1qTiugvn9padXsP1YYyrkoUYJxIC8UDTOA+lo6dgagORAUZUlFiaw2lLyh4k5Tg45A9Ad3n4uRBBTQffS/Fs1pp7tvLSKNfbp1fr2th1soY/3IHsd89wT5zz2wTH2Tk4+vzEEOFlqvFTsIyoUUqMBmcPGC3xZTgBjlg0NtSPcKUcBf5XypLuOO075+VhDzyil2sHB8YvLr76AS1YZxoscOzzYjnk4LTCn86mU6YhnpziXfMnzuTQgFM1XA08G0dQ8jT/cL6EsPWQ626Edqg/iqsEOPyvEnj5/HBB49JqWPN/W18azweW3q/lc4PBpW1f0GWjO/vLTmsrw0xV2VPFEb0hja9FhdwqS5ngF2/tC8sZdzceq1DhhkVNBrD1FlaOClBdsbEU+x5Thts1UWnwMoFfN0VXu+JLnxzL9NCUYrJyRABWYlgUvtPScHp7qZykrJPLrOwQe28pyqsiRFmsQ4d1/74PCf7A6OAlzFQAA
+  learner_created: false
+- name: test/data2.gz
+  visible: false
+  text: H4sICHA1pmEAA2RhdGEyLmZhc3RxALWYO5IbSQxE/brKOiLnJ1krRBnwypBw/7Ms3gMVewHVfMhhsyc6O5FIJPjz969fj+fb+8fn12NV7B2nos4+u/LsXadyV5yo/tr9dE7WjtrZRzKiX/SR3adHf/eLyj6/X8X6Z/37F7/Wz/+BPlfmAeeJaJyNox/inL58IwZJAwVKY23U4GzcleA6x7uLPr/6Zusq0LfFxRtGXzqyHxtawy3gArCvXv12H+47abqT4zAIlY08T5PrrcLxRaDvzWhCTHG5vm6j7j8SiFy769xs9S9QNirh3Sa3Cc/N7aV4qcRVoB+LsgLCKp4aLPDUMo1RIbdQcIY80aY/B/gtmDiqNjLORaCfq6+VYOnSAqwF15enXaKBge0ghZD3xgTHPLZg+iC/G2I5uvMi0K/VFNIpLTtBQWqEvS5jR7b4qxmmzTYtDoHT7ZCKilu/5yaj35cCo5QJrVvv2cjyQCKgxASv28LrXZDOOYGpNcMCvcnoj9U1q/Eg6KN9cKiDCTVOeitRB5UV1fZZRScV8P4O59RNoI9vC1U2O0GdN5XFRRsO8F967eLS4zW9xC2glK7BoeDThZjsVaSPRedC27apueJWDlokIHSpZHBRcJu85n8OCindNnWGm0h7OMXLETV+GPSv5pOJmn+qC5lMJjHpt2Xvb2evAytvDqfH22IeMnZQacSYJJ2vIqRPYnmjZir0I8h4S+KpCnzXzc5/vFN9e2kDgBI6kgoHJY6kbV6Qt3N0YiKhBiHlzoyjVd1E+rF0GwY8XG0HYzrAsc/NQGBKqlWA7nFZe4w8UmrlaP9XkX6uE3+Mh6inNzLNkenQmupjGm3bXk6ubf47c1zsV33/8bVITzTuNm0CL8FM49Pp+D0qJI44UfWjmgCQphJ9mPB61aW+L4S5ywDnJNUcbX0C3tkjizT1mUaMVLSfw6IcpxbiajB9/Fhl1NPTQ9bOTFeiPYdikihv6BH0U+YMB5+PqQagNzl9flu0gtHkSGHjajXYWnAKh1Q5DFT8TFo1RJWLC6qerHVTp8/en7hEjMfL16T+5i0FgwoCk305QloC9hUWEw6B0revcvpcTkc7PXKym6PSZSNcpWLApGjDwRpnRr4hihFA2rpb/bdlAKVjkGMwHT0gYIYmXbQnXKNUc7aC6V5/uat+TMPdRPq+xJn6v15uoJ41btpn5CGZMUl7eweIlP8p442rwU2k7FAGZ6zHgTTD0QCSoHcPpcdiVtCy26D/tcRSlOMmcDNLPXtGbSWXs7Zr+UoS2c6O4vZ0pt89wWFQrglh7IbtfXc3eX6tlMpyO9KfJoEKPwZxaeycYuORW1xaWLFdoJtOPe0m0u8kFFd3jCnMIeaoWfMYUeRp1ux6jX12KihOpFLwipMZqW4i7T2Ksu2YHY9U58pXtj+S1G3DRdW8us0yZR9a9VllzbQ3P+ZhRkHTaNLPwcLNfubVLPe2zzbeG632fDSBP9GNflrlCP7bSP8DF6WC4+MTAAA=
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/235/stages/1184/implement#comment
+status: Unchecked
+record: -1

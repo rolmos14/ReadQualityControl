@@ -1,0 +1,15 @@
+type: code
+custom_name: Which type of copy?
+files:
+- name: main.py
+  visible: true
+  text: |-
+    import copy
+
+
+    def detect_copy():
+        pass
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/9277#comment
+status: Solved
+record: -1
