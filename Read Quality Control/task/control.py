@@ -1,11 +1,11 @@
 class FASTQRead:
 
     def __init__(self, identifier, features, sequence, repetition, quality):
-        self.identifier = identifier;
-        self.features = features;
-        self.sequence = sequence;
-        self.repetition = repetition;
-        self.quality = quality;
+        self.identifier = identifier
+        self.features = features
+        self.sequence = sequence
+        self.repetition = repetition
+        self.quality = quality
 
     def __str__(self):
         read = self.identifier + " " + self.features + '\n'
@@ -40,7 +40,7 @@ class ReadQualityControl:
     @staticmethod
     def read_file_lines(path):
         with open(path) as file:
-            file_lines = file.readlines()
+            file_lines = file.read().splitlines()
         return file_lines
 
 

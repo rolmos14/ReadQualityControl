@@ -58,26 +58,12 @@ files:
   text: |
     # write your code here
   learner_created: false
+- name: test.fastq
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/235/stages/1179/implement#comment
-status: Failed
+status: Solved
 feedback:
-  message: |-
-    Wrong answer in test #1
-
-    There are 6 lines in your answer. It should be 4. Extra lines are:
-    ['']
-
-    Please find below the output of your program during this failed test.
-    Note that the '>' character indicates the beginning of the input line.
-
-    ---
-
-    > test.fastq
-    @SRR345678.45 GWZHISEQ01:153:C1W31ACXX:5:1101:5069:2307 length=101
-    GCTTCTCTTAACTGAGGTCACCATCATGCCGTTAAGTCCCTACCTCTCTTTTGCCGGTAACTGTTCCGCCGCGATTGCCTTTTATCTGTCTCTTATACACC
-
-    +
-
-    ??<DBD;4C2=<BB>:AC;<CF<CE@FE9@E1C@891CD*9:?:3D@DD4?D<DD:0;@A=AEIDDA##################################
-  time: Sat, 17 Sep 2022 13:40:13 UTC
+  message: Congratulations!
+  time: Sun, 18 Sep 2022 07:44:21 UTC
 record: -1
