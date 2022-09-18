@@ -125,6 +125,12 @@ files:
     if __name__ == "__main__":
         ReadAmount().run_tests()
   learner_created: false
+- name: tests.fastq
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/235/stages/1180/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Sun, 18 Sep 2022 09:04:39 UTC
 record: -1

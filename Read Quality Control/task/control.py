@@ -14,6 +14,9 @@ class FASTQRead:
         read += self.quality
         return read
 
+    def get_length(self):
+        return len(self.sequence)
+
 
 class FASTQFile:
 
@@ -21,7 +24,12 @@ class FASTQFile:
         self.reads = []
         for line in range(0, len(file_lines), 4):
             ident = file_lines[line].split()[0]
-            feat = file_lines[line].split()[1] + " " + file_lines[line].split()[2]
+            # Features field can be empty
+            feat = ""
+            try:
+                feat = file_lines[line].split()[1] + " " + file_lines[line].split()[2]
+            except IndexError:
+                pass
             seq = file_lines[line + 1]
             rep = file_lines[line + 2]
             qual = file_lines[line + 3]
@@ -30,6 +38,24 @@ class FASTQFile:
 
     def get_read(self, number):
         return self.reads[number]
+
+    def get_num_reads(self):
+        return len(self.reads)
+
+    def get_read_avg_length(self):
+        return round(sum([read.get_length() for read in self.reads]) / self.get_num_reads())
+
+    def show_length_stats(self):
+        read_lengths = [read.get_length() for read in self.reads]
+        # Dictionary made of {length: quantity} pairs
+        length_quantity_dict = {read_length: read_lengths.count(read_length) for read_length in read_lengths}
+        sorted_lengths = sorted(length_quantity_dict.keys())
+        sorted_len_qty_dict = {length: length_quantity_dict[length] for length in sorted_lengths}
+        stats = f"Reads in the file = {self.get_num_reads()}:\n"
+        for length, quantity in sorted_len_qty_dict.items():
+            stats += f"\twith length {length} = {quantity}\n"
+        stats += f"\nReads sequence average length = {self.get_read_avg_length()}"
+        print(stats)
 
 
 class ReadQualityControl:
@@ -46,4 +72,5 @@ class ReadQualityControl:
 
 fastq_file_path = input()
 read_quality_control = ReadQualityControl(fastq_file_path)
-print(read_quality_control.file.get_read(0))
+read_quality_control.file.show_length_stats()
+

@@ -58,12 +58,9 @@ files:
   text: |
     # write your code here
   learner_created: false
-- name: test.fastq
-  visible: true
-  learner_created: true
 feedback_link: https://hyperskill.org/projects/235/stages/1179/implement#comment
 status: Solved
 feedback:
   message: Congratulations!
   time: Sun, 18 Sep 2022 07:44:21 UTC
-record: -1
+record: 1
