@@ -1,6 +1,6 @@
 class FASTQRead:
 
-    def __init__(self, identifier, features, sequence, repetition, quality):
+    def __init__(self, identifier: str, features: str, sequence: str, repetition: str, quality: str):
         self.identifier = identifier
         self.features = features
         self.sequence = sequence
@@ -16,6 +16,9 @@ class FASTQRead:
 
     def get_length(self):
         return len(self.sequence)
+
+    def get_average_gc(self):
+        return round((self.sequence.count('G') + self.sequence.count('C')) / len(self.sequence) * 100, 2)
 
 
 class FASTQFile:
@@ -45,16 +48,21 @@ class FASTQFile:
     def get_read_avg_length(self):
         return round(sum([read.get_length() for read in self.reads]) / self.get_num_reads())
 
-    def show_length_stats(self):
+    def get_read_avg_gc(self):
+        return round(sum([read.get_average_gc() for read in self.reads]) / self.get_num_reads(), 2)
+
+    def show_stats(self):
         read_lengths = [read.get_length() for read in self.reads]
         # Dictionary made of {length: quantity} pairs
         length_quantity_dict = {read_length: read_lengths.count(read_length) for read_length in read_lengths}
         sorted_lengths = sorted(length_quantity_dict.keys())
         sorted_len_qty_dict = {length: length_quantity_dict[length] for length in sorted_lengths}
-        stats = f"Reads in the file = {self.get_num_reads()}:\n"
-        for length, quantity in sorted_len_qty_dict.items():
-            stats += f"\twith length {length} = {quantity}\n"
-        stats += f"\nReads sequence average length = {self.get_read_avg_length()}"
+        stats = f"Reads in the file = {self.get_num_reads()}\n"
+        # Stage 2 statistics:
+        # for length, quantity in sorted_len_qty_dict.items():
+        #     stats += f"\twith length {length} = {quantity}\n"
+        stats += f"Reads sequence average length = {self.get_read_avg_length()}"
+        stats += f"\n\nGC content average = {self.get_read_avg_gc()}%"
         print(stats)
 
 
@@ -72,5 +80,5 @@ class ReadQualityControl:
 
 fastq_file_path = input()
 read_quality_control = ReadQualityControl(fastq_file_path)
-read_quality_control.file.show_length_stats()
+read_quality_control.file.show_stats()
 

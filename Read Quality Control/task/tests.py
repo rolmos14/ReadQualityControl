@@ -2,16 +2,14 @@ from hstest import *
 import re
 
 
-class ReadAmount(StageTest):
+class GcContent(StageTest):
     files_dict = {
-            "test1.fastq": """@SRR12345678.5\nATGCAAGATTCCATTCTGACGACCGTAGTGAAAGATATCGACGGTGAAGTGACCACGCTTGCGAAGTTCTCCTGTT\n+SRR12345678.5\n-ABC@EF<FFFF9FFFGCAFF7FF7F,,B,,,,,,C,CE,,@++B,,,,<,,<@,:,7B,,,++++:<C,<C,,:,\n@SRR12345678.6\nATATTGAAGGTGGCCTGGAGATGAAGTACGGCTCCTGGTTCGGCCTGATTTACGTCTCCGGCTGGCCCTTGCATT\n+SRR12345678.6\n-A<CCDC<CCE98CFF8<8<8CC9<<C<E,+@@CFF8,CFE++@@F,,CCE9C,,;,,,++88+,,9:,:,:,,,\n@SRR12345678.7\nGTATTGGCGCTGATTAACAAACGCAATAGATAATGTTTTACCGGAACTGCTCGGTTCATCAATGTTGTAGTTGTTT\n+SRR12345678.7\n-A<CCD@FCGG7+EE<9E9<,E7C7+C99,<,,C,CFFFAEC,+++@C,@CC,+8@@,<<,,9,<C,:,,<C,,::\n@SRR12345678.8\nGTGCCGGACAGCCGCAGCATGAATCTGTCCAATGCGGTGTCGGTCGTTTTGTATTAATCCTTTCTTCTTTTTTTTT\n+SRR12345678.8\n-8-ACF7+@:<EF+@++@<E,,,CEF,CF@,,<,;++B+BC,+8,+8,,6,:,<,,,,<<C,,:,,<,,6<,+++8\n@SRR12345678.9\nTCAGCATACTCGCCGCCTCTGCTGCGGAAATCCCCGGCAGCGTCGCTGGCATATACAACCAGTCTCCTTCATTTAT\n+SRR12345678.9\n-8A-ACFCFGGCFE@FCCED8CF@D7++++;CCCD7+@++@+B@++8,+8,C,C,<,,:,,,9:,<?C6C,CC,,6\n@SRR12345678.10\nTCGTTACGAGAGTGTTCTCTGAACTCTATATGCGATTCATCTGCTGATCGCTCAATTACATGTCGAACTCTTTT\n+SRR12345678.10\n-A<CCFGEC@77C9FFFGGG,,,CEEF9E,<,C,,CDC,CCC,<C,,;,,866+,,<,<,,,<,,,,;,6<C,<""",
-            "test2.fastq": """@SRR98765432.1071861 1071861\nCCCATAAAGATATACTGTTTTTTTTTCTTTCCCTCTTTTCTTCTTTTTCCTTCCCCCTTA\n+SRR98765432.1071861 1071861\n-88-8,-,--;-<,<,,,,,,9++++;,;;;;;,;,,;,,,,<;,,6,,;,;6,;,8+,,\n@SRR98765432.1071862 1071862\nCGCTATGACCATTTCGCCCTCCTCTTCGGCAACCTTTCCATCCCTTCCCTCTCACAATATT\n+SRR98765432.1071862 1071862\n8-8-,8-,;C,;C,-,8,8+;,;C<,;,,+++,,;6,;,,,,,;;C,;;,,;;,;,,;,<,\n@SRR98765432.1071863 1071863\nCTTCATCGCTGCCCGTTTCTTGTTCCAGAAACTTTTTCCACGGTTATCCCCTCACCATAA\n+SRR98765432.1071863 1071863\nAACC,CC,BC,@@C-+;;CCC,;C@C,,,,,;C,,<;,;,;,+,,,;;;;,,8,;;,;,,\n@SRR98765432.1071864 1071864\nCTTTTCTGCCTTCACGTTCCATCCTTCTCCGTCTTTCTTTCCGTTCCCCTCTCCTTACTT\n+SRR98765432.1071864 1071864\n-8,-8C-,<;E-;,;,,;;;,,;;6CC,;C+:,,,<;,,,<;,,,;;,,,,,;;,;,;<C""",
-            "test3.fastq": """@SRR1234567.1 GWZHISEQ01:153:C1W31ACXX:5:1101:14027:2198 length=101\nGGTTGCAGATTCGCAGTGTCGCTGTTCCAGCGCATCACATCTTTGATGTTCACGCCGTGGCGTTTAGCAATGCTTGAAAGCGAATCGCCTTTGCCCACACG\n+\n@?:=:;DBFADH;CAECEE@@E:FFHGAE4?C?DE<BFGEC>?>FHE4BFFIIFHIBABEECA83;>>@>@CCCDC9@@CC08<@?@BB@9:CC#######\n@SRR1234567.2 GWZHISEQ01:153:C1W31ACXX:5:1101:19721:2155 length=101\nGTATGAGGTTTTGCTGCATTCTCTGNGCGAATATTAACTCCNTNNNNNTTATAGTTCAAAGCAAGTACCTGTCTCTTATACACATCTCCGAGCCCACGAGC\n+\n@@<?=D?D==?<AFGDF+AIHEACH#22<:?E8??:9??GG#0#####000;CF=C)4.==CA@@@)=7?C7?E37;3@>;;(.;>AB#############\n@SRR1234567.3 GWZHISEQ01:153:C1W31ACXX:5:1101:5069:2307 length=101\nGCTTCTCTTAACTGAGGTCACCATCATGCCGTTAAGTCCCTACCTCTCTTTTGCCGGTAACTGTTCCGCCGCGATTGCCTTTTATCTGTCTCTTATACACC\n+\n??<DBD;4C2=<BB>:AC;<CF<CE@FE9@E1C@891CD*9:?:3D@DD4?D<DD:0;@A=AEIDDA##################################\n@SRR1234567.4 GWZHISEQ01:153:C1W31ACXX:5:1101:5178:2440 length=101\nGCATAAGGACGATCGCTCCAGAGTAAAATAAATACGCGCATGTGATACTCACAATACCAATGGTGAAGTTACGGGACTTAAACAAACTGAGATCAAGAATC\n+\nCCCFFFFFHHHHHJJJJJJJJJJFFHIJJJJJJJJJJJJJJJJJJJJJJJIJHHHHHHFDEDF;AEEEEEEDDDDDBBACDDDCDDDDCCDDDDDDCCDC3\n@SRR1234567.5 GWZHISEQ01:153:C1W31ACXX:5:1101:6707:2460 length=101\nTCATTAAGCCGTGGTGGATGTGCCATAGCGCACCGCAAAGTTAAGAAACCGAATATTGGGTTTAGTCTTGTTTCATAATTGTTGCAATGAAACGCGGTGAA\n+\nCCCFFFFFHHHHHJHIIJIIIIJJJJJJGIJJJJJIJJIIGHJJJJJIIJJDHFFFFFEDACDDDCDDDDCCDDECACCDCCCDACDDDDCCDDDDDBD@A\n@SRR1234567.6 GWZHISEQ01:153:C1W31ACXX:5:1101:8152:2430 length=101\nATTTTTGAAAATATCACCGCCCAAAAAATAGACGTTACTTTATCTTTACTATCTGCTGCTTTGGCAATACTCTGAGTTGCTGTGAGATTGAAACCATATTC\n+\nCCCFFFFFHHHHHJJJJJIJJIGIGIJJIIIGJJIJIJJJJJJJJJJIJJJJGIIJIIJGHHGEHFFDFFFEDEDC>CCDDDDDDDCDCCCCCDAACCCE#""",
-            "test4.fastq": """@SRR12345671\nACAAGCNTACGGACGNNANGGTANCNTAACCGCATATCGCTTGCNGTNGTNTGGTNANGTNAAGATGTCNACGGAATNACAAANCGACNNCCNGAGGGGC\n+\n????????????????????????????????????????????????????????????????????????????????????????????????????\n@SRR12345672\nTTCNTNCNAGGTACATTGCCNNNANCTTGCGTGCAATNNACCAAGGGTAAGTCTCGGCNACNCTCCTNACTACCANAGNCNNTTAGTNCGTNGNAGCGAC\n+\n????????????????????????????????????????????????????????????????????????????????????????????????????\n@SRR12345673\nCTGAGNGGTNAGGGTACATTGTCTTATCNTTAATAGNTACNAAGNCGTTATTGGCACTCTTCGNNNGGNANTNGCC\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR12345674\nGGGATNCTGGNACGNGAGGNAGNTTATNGCAGTTCCTTCANTNCACCAGNAGTTTNCCGCGGTNGCTTCGGACTCC\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR12345671\nTGTGGNNGTNGNGATNTTCTTCGTACANAGTCAATTGACGNGAGCGTGANGNNTGNACCNGCCTGACTGANTNNCGNTAGTNNATTNCNTTNANNTNAGCN\n+\n?????????????????????????????????????????????????????????????????????????????????????????????????????\n@SRR12345672\nGGATCAANANTAGCAGATAGGTNGTTTGAGTCTTTTANCTTTGAATNGCNANCANNGNNGGGGNCNACNGNTACCANAGTANCNGANNCCGGACAAACTGG\n+\n?????????????????????????????????????????????????????????????????????????????????????????????????????\n@SRR12345673\nNGTCCAAGGCCAANGGCCNTGGGTGTCGGCNCGNNGTNAGACNCAATNACCATCGAATTGCCGTNTANCGGCTTCTCTTCGGAANGCNAGNNANCCCATAA\n+\n?????????????????????????????????????????????????????????????????????????????????????????????????????""",
-            "test5.fastq": """@SRR12345676\nCGAGTTGCTNGCGCCGAAAACCACGTCGTCCAAATAGNNTGTGNTNNCTTTTGGTGCNATCTTTTNGGGTNCGCACACTGNGNGGGGGNGNGACTNNNCCC\n+\n?????????????????????????????????????????????????????????????????????????????????????????????????????"""
-        }
+            "test1.fastq": """@SRR12345678.1 1 length=75\nGCACACAACCGTGATGCTGAGCTGGCGTCGGTGGTATCAAATATGTCCAGCGAGCCGCACGTTACCCCTCCACTT\n+SRR12345678.1 1 length=75\n-ABCCGGFGGGGG9FFFEACFFGC<FEBC++8,+C9FG9<,C,CEFEFC,C@++8:+++8+C@,89C@,8,,,99\n@SRR12345678.2 2 length=76\nCACTGACTGGGATTTTTTGCAGCGAGTTTGCCAGCAGGTGGGATTTTCACCGGTTGTTATTCGCGAAGTTAATGAA\n+SRR12345678.2 2 length=76\n@BCCCGGGGGGGGGGGGGGGGGGGDGFGGCFG9EFCFDGG?7,CFFFFCFF7+@C+BC,CCC,:++++:C,,<,,,""",
+            "test2.fastq": """@SRR98765432.1 1 length=71\nCGGTAATAGTCACGGTGCTCATGCTTGCTCCTTAAGGGCGTTAACACGCAAAGTAACGGCATTTTTGTGGT\n+SRR98765432.1 1 length=71\nACCCCGGGGGGGGFGGGGGGGGGGGGGGGGGGGCAEFDFEEFDFFFF7B:+@8F9,C,+8+@EFFF+C,,,\n@SRR98765432.2 2 length=76\nGTTTCCCGCTTCGTGCACTGAAATTTTATGATAACGATGGTGCGCGGCAGGAAGTGATTTCCGAAGCCTTTAAATT\n+SRR98765432.2 2 length=76\n-ACCCGGGGEGGGGFGGFGFCCDFFGGGGF,C@EF@7FDDE,C+@+::++6,,,:,,<<,<6,,,+86C,:,,,,6\n@SRR98765432.3 3 length=53\nGTGGATGACGGCCCATAACATCGCCTTCGTCGTGGTCAATATCAATATTAACT\n+SRR98765432.3 3 length=53\n-CCCCGGGGGGGGGGGGGGGGGGGGGGGGGGGGDGGFCFFAFFC,F9EF9<EE\n@SRR98765432.4 4 length=75\nTGGCAGAACAGCTTGATCAGATGGGCGGCGAGCAGCTGCGTCGCAAAATCGAAAGTATTTGCTTGCGCTTTCACA\n+SRR98765432.4 4 length=75\n@@CCCGGGGGFGGGGFFFGCFGGFCFCDF7@+@FAEFCF+BF@C:C7CFE7,,,+C,C,,,<,C,:+7+?D<,C,""",
+            "test3.fastq": """@SRR123456722\nAGTCTNCGNTAGAGNGNCANAGGGGNANAANNTCANGTGTAGNNTGAATGCNCANNNCNNNNACNGCTANGCNTAG\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR123456723\nAANGTGGTATTGGAACCNANGTGNCANAAGGNCAAACTANCAAGNNGATANCGCCCGNGGGCTNTTCCTCTTGNTC\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR123456724\nNGTGGGATCCTGCCCAGGCGACTTCGNCGNCACTTAGNAAATGCAAGNTANCAGGNCNATTCTGCTGAACANGAGN\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR123456725\nNTNNCCCCANTCTGNGNNTNCNGNTTGGCCTGGTTATGAGCACGNNNGTGCTNGGGAAGGGTACAAANGNNNCGGT\n+\n????????????????????????????????????????????????????????????????????????????\n@SRR12345673\nACGTAGNNNCAATNGTCTCNCTTTCACANCGAACGTACGAANTCNAAANCTACGNGNCCNGNGCACTNACGTTACCGNGTGCGNAANGANGCGNGCNATN\n+\n????????????????????????????????????????????????????????????????????????????????????????????????????"""
+    }
 
-    def common_test(self, file_name, correct_lengths, CORRECT, AVERAGE):
+    def common_test(self, file_name, AMOUNT, AVERAGE, GC):
         program = TestedProgram()
         program.start()
 
@@ -24,20 +22,10 @@ class ReadAmount(StageTest):
             raise WrongAnswer("You gave an empty answer")
         reply_low = reply.replace(" ", "").lower()
 
-        def check_format(line, substring, file):
-            test = file.split('.')[0]
-            test2withlen = {"test1": 3, "test2": 2, "test3": 1,
-                            "test4": 3, "test5": 1}
+        def check_format(line, substring):
             substring_low = substring.replace(" ", "").lower()
-
-            if substring_low == "withlength" and line.count(substring_low) != test2withlen[test]:
-                raise WrongAnswer(f"Substring \"{substring}\" should occur {test2withlen[test]} time(s) in the {test} output.\n"
-                                  f"Found {line.count(substring_low)} occurrence(s).\n"
-                                  f"Check the output format in the Examples section.\n"
-                                  f"Make sure there is no typos in the output of your program.")
-
-            if substring_low != "withlength" and line.count(substring_low) != 1:
-                raise WrongAnswer(f"Substring \"{substring}\" should occur once in the {test} output.\n"
+            if line.count(substring_low) != 1:
+                raise WrongAnswer(f"Substring \"{substring}\" should occur once in the output.\n"
                                   f"Found {line.count(substring_low)} occurrence(s).\n"
                                   f"Check the output format in the Examples section.\n"
                                   f"Make sure there is no typos in the output of your program.")
@@ -50,20 +38,6 @@ class ReadAmount(StageTest):
             if reads_amount != correct_amount:
                 raise WrongAnswer("Reads in the file value is incorrect")
 
-        def check_lengths(reply_len, correct_len):
-            length2count = {}
-            for len_search in re.findall(pattern="withlength([0-9]+)=([0-9]+)+", string=reply_len):
-                length2count[len_search[0]] = len_search[1]
-
-            if not length2count:
-                raise WrongAnswer("Didn't find all the numerical answers in 'With length' lines. Please, check if the answer format is correct")
-            for l, cnt in length2count.items():
-                if l not in correct_len.keys():
-                    raise WrongAnswer(f"The reads length = {l} is incorrect for this test")
-                else:
-                    if length2count[l] != correct_len[l]:
-                        raise WrongAnswer(f"The number of reads of length {l} is incorrect")
-
         def check_average(reply_avg, average):
             average_search = re.search(pattern="readssequenceaveragelength=([0-9]+)", string=reply_avg)
             if average_search is None:
@@ -72,45 +46,35 @@ class ReadAmount(StageTest):
             if average_number != average:
                 raise WrongAnswer("Reads average is incorrect")
 
-        check_format(reply_low, "Reads in the file =", file_name)
-        check_format(reply_low, "Reads sequence average length =", file_name)
-        check_format(reply_low, "With length", file_name)
-        check_amount(reply_low, CORRECT)
-        check_lengths(reply_low, correct_lengths)
+        def check_gc(reply_gc, gc_correct):
+            gc_search = re.search(pattern="gccontentaverage=([0-9]+\.[0-9]+)", string=reply_gc)
+            if gc_search is None:
+                raise WrongAnswer("Didn't find numerical answer in 'GC content' line. Please, check if the answer format is correct")
+            gc_number = float(gc_search.group(1))
+            if gc_number != gc_correct:
+                raise WrongAnswer("GC content average is incorrect")
+
+        check_format(reply_low, "Reads in the file")
+        check_format(reply_low, "Reads sequence average length =")
+        check_format(reply_low, "GC content average =")
+        check_amount(reply_low, AMOUNT)
         check_average(reply_low, AVERAGE)
+        check_gc(reply_low, GC)
 
         return CheckResult.correct()
 
     @dynamic_test(files=files_dict)
     def test1(self):
-        return self.common_test("test1.fastq",
-                                correct_lengths={'74': '1', '75': '1', '76': '4'},
-                                CORRECT=6, AVERAGE=76)
+        return self.common_test("test1.fastq", AMOUNT=2, AVERAGE=76, GC=51.69)
 
     @dynamic_test(files=files_dict)
     def test2(self):
-        return self.common_test("test2.fastq",
-                                correct_lengths={'60': '3', '61': '1'},
-                                CORRECT=4, AVERAGE=60)
+        return self.common_test("test2.fastq", AMOUNT=4, AVERAGE=69, GC=47.48)
 
     @dynamic_test(files=files_dict)
     def test3(self):
-        return self.common_test("test3.fastq",
-                                correct_lengths={'101': '6'},
-                                CORRECT=6, AVERAGE=101)
-
-    @dynamic_test(files=files_dict)
-    def test4(self):
-        return self.common_test("test4.fastq",
-                                correct_lengths={'76': '2', '100': '2', '101': '3'},
-                                CORRECT=7, AVERAGE=94)
-
-    @dynamic_test(files=files_dict)
-    def test5(self):
-        return self.common_test("test5.fastq",
-                                correct_lengths={'101': '1'},
-                                CORRECT=1, AVERAGE=101)
+        return self.common_test("test3.fastq", AMOUNT=5, AVERAGE=81, GC=42.35)
 
 
 if __name__ == "__main__":
-    ReadAmount().run_tests()
+    GcContent().run_tests()
