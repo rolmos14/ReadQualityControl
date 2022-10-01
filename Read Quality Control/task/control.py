@@ -20,6 +20,12 @@ class FASTQRead:
     def get_average_gc(self):
         return round((self.sequence.count('G') + self.sequence.count('C')) / len(self.sequence) * 100, 2)
 
+    def get_num_n(self):
+        return self.sequence.count('N')
+
+    def get_n_ratio(self):
+        return self.get_num_n() / self.get_length() * 100
+
     def __eq__(self, other):
         return self.sequence == other.sequence
 
@@ -61,6 +67,12 @@ class FASTQFile:
         reads_set = set(self.reads)
         return self.get_num_reads() - len(reads_set)
 
+    def get_num_reads_with_n(self):
+        return len([read for read in self.reads if read.get_num_n() > 0])
+
+    def get_read_n_ratio(self):
+        return round(sum([read.get_n_ratio() for read in self.reads]) / self.get_num_reads(), 2)
+
     def show_stats(self):
         # read_lengths = [read.get_length() for read in self.reads]
         # Dictionary made of {length: quantity} pairs
@@ -73,7 +85,9 @@ class FASTQFile:
         #     stats += f"\twith length {length} = {quantity}\n"
         stats += f"Reads sequence average length = {self.get_read_avg_length()}"
         stats += f"\n\nRepeats = {self.get_total_repeats()}"
+        stats += f"\nReads with Ns = {self.get_num_reads_with_n()}"
         stats += f"\n\nGC content average = {self.get_read_avg_gc()}%"
+        stats += f"\nNs per read sequence = {self.get_read_n_ratio()}%"
         print(stats)
 
 
