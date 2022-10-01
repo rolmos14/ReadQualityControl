@@ -1,3 +1,6 @@
+import gzip
+
+
 class FASTQRead:
 
     def __init__(self, identifier: str, features: str, sequence: str, repetition: str, quality: str):
@@ -93,16 +96,26 @@ class FASTQFile:
 
 class ReadQualityControl:
 
-    def __init__(self, path):
-        self.file = FASTQFile(self.read_file_lines(path))
+    def __init__(self, paths):
+        self.files = []
+        for path in paths:
+            self.files.append(FASTQFile(self.read_file_lines(path)))
 
     @staticmethod
     def read_file_lines(path):
-        with open(path) as file:
+        with gzip.open(path, 'rt') as file:
             file_lines = file.read().splitlines()
         return file_lines
 
+    def choose_best_file(self):
+        best_file = self.files[0]
+        for file in self.files[1:]:
+            if file.get_total_repeats() + file.get_num_reads_with_n() < \
+                    best_file.get_total_repeats() + best_file.get_num_reads_with_n():
+                best_file = file
+        best_file.show_stats()
 
-fastq_file_path = input()
-read_quality_control = ReadQualityControl(fastq_file_path)
-read_quality_control.file.show_stats()
+
+fastq_file_paths = [input() for _ in range(3)]
+read_quality_control = ReadQualityControl(fastq_file_paths)
+read_quality_control.choose_best_file()
